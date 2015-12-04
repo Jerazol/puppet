@@ -14,6 +14,5 @@ letsencrypt::sites:
     domain: 'somesite.com'
   another_site.org:
     domain: 'another_site.org'
+    domain_alias: 'www.another_site.org'
 ```
-
-You should eventually be able to specify "alias:" as well, but this doesn't quite work yet.

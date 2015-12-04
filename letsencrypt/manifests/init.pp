@@ -4,7 +4,8 @@ class letsencrypt (
   user {'letsencrypt':
     ensure      => present,
     managehome  => true,
-    home        => '/var/lib/letsencrypt'
+    home        => '/var/lib/letsencrypt',
+    shell       => '/bin/bash'
   }
 
   file {
