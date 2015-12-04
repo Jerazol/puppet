@@ -9,6 +9,7 @@ define letsencrypt::certificate (
     require => File['/var/lib/letsencrypt/keys/'],
   }
 
+
   if $domain_alias == '' {
     #for a single domain
     exec { "${domain}_csr":
@@ -20,7 +21,7 @@ define letsencrypt::certificate (
   } else {
     #for multiple domains (use this one if you want both www.yoursite.com and yoursite.com)
     exec { "${domain}_csr":
-      command => "/usr/bin/openssl req -new -sha256 -key /var/lib/letsencrypt/keys/$domain.key -subj "/" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"[SAN]\nsubjectAltName=DNS:$domain,DNS:$domain_alias\")) > /var/lib/letsencrypt/csrs/$domain.csr",
+      command => "/usr/bin/openssl req -new -sha256 -key /var/lib/letsencrypt/keys/$domain.key -subj \"/\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"[SAN]\nsubjectAltName=DNS:$domain,DNS:$domain_alias\")) > /var/lib/letsencrypt/csrs/$domain.csr",
       creates => "/var/lib/letsencrypt/csrs/$domain.csr",
       user    => 'letsencrypt',
       require => File['/var/lib/letsencrypt/csrs/'],
@@ -32,6 +33,12 @@ define letsencrypt::certificate (
     creates => "/var/lib/letsencrypt/crts/$domain.crt",
     user    => 'letsencrypt',
     require => Exec["${domain}_csr"],
+  }
+
+  exec { "${domain}_pem":
+    command => "/bin/cat /var/lib/letsencrypt/crts/$domain.crt /var/lib/letsencrypt/crts/intermediate.pem > /var/lib/letsencrypt/crts/$domain.pem",
+    require => [Exec["${domain}_crt"],Exec['wget_intermediate_pem']],
+    creates => "/var/lib/letsencrypt/crts/$domain.pem",
   }
 
 }

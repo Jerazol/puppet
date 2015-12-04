@@ -1,4 +1,6 @@
-class letsencrypt {
+class letsencrypt (
+  $sites = {},
+) {
   user {'letsencrypt':
     ensure      => present,
     managehome  => true,
@@ -34,4 +36,13 @@ class letsencrypt {
     user    => 'letsencrypt',
     require => User['letsencrypt'],
   }
+
+  exec { 'wget_intermediate_pem':
+    command => '/usr/bin/wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /var/lib/letsencrypt/crts/intermediate.pem',
+    user    => 'letsencrypt',
+    require => File['/var/lib/letsencrypt/crts/'],
+    creates => '/var/lib/letsencrypt/crts/intermediate.pem',
+  }
+
+  create_resources('letsencrypt::certificate', $sites)
 }
