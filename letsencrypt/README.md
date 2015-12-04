@@ -3,7 +3,9 @@ Quickly thrown together puppet module based on https://github.com/diafygi/acme-t
 Usage:
 
 In your manifest:
+```puppet
 include letsencrypt
+```
 
 In the relevant hiera file:
 ```yaml
