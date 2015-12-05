@@ -1,4 +1,4 @@
-Quickly thrown together puppet module based on https://github.com/diafygi/acme-tiny
+Puppet module based on https://github.com/diafygi/acme-tiny
 
 Performs steps 1, 2, 4 and partly 5 for you. You still need to configure the webserver yourself.
 The module assumes acme-tiny is installed in /usr/local/bin/acme_tiny.py
