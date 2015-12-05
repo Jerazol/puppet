@@ -16,7 +16,7 @@ define letsencrypt::certificate (
       command => "/usr/bin/openssl req -new -sha256 -key /var/lib/letsencrypt/keys/$domain.key -subj \"/CN=$domain\" > /var/lib/letsencrypt/csrs/$domain.csr",
       creates => "/var/lib/letsencrypt/csrs/$domain.csr",
       user    => 'letsencrypt',
-      require => File['/var/lib/letsencrypt/csrs/'],
+      require => [Exec["${domain}_key"], File['/var/lib/letsencrypt/csrs/']],
     }
   } else {
     #for multiple domains (use this one if you want both www.yoursite.com and yoursite.com)
@@ -24,8 +24,7 @@ define letsencrypt::certificate (
       command => "/bin/bash -c '/usr/bin/openssl req -new -sha256 -key /var/lib/letsencrypt/keys/$domain.key -subj \"/\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"[SAN]\\nsubjectAltName=DNS:$domain,DNS:$domain_alias\")) > /var/lib/letsencrypt/csrs/$domain.csr'",
       creates => "/var/lib/letsencrypt/csrs/$domain.csr",
       user    => 'letsencrypt',
-
-      require => File['/var/lib/letsencrypt/csrs/'],
+      require => [Exec["${domain}_key"], File['/var/lib/letsencrypt/csrs/']]
     }
   }
 
@@ -33,7 +32,7 @@ define letsencrypt::certificate (
     command => "/usr/bin/python /usr/local/bin/acme_tiny.py --account-key /var/lib/letsencrypt/keys/account.key --csr /var/lib/letsencrypt/csrs/$domain.csr --acme-dir /var/www/challenges/ > /var/lib/letsencrypt/crts/$domain.crt",
     creates => "/var/lib/letsencrypt/crts/$domain.crt",
     user    => 'letsencrypt',
-    require => Exec["${domain}_csr"],
+    require => [Exec["${domain}_csr"], File['/var/lib/letsencrypt/crts/']],
   }
 
   exec { "${domain}_pem":
