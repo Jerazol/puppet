@@ -35,7 +35,7 @@ class letsencrypt (
     command => '/usr/bin/openssl genrsa 4096 > /var/lib/letsencrypt/keys/account.key',
     creates => '/var/lib/letsencrypt/keys/account.key',
     user    => 'letsencrypt',
-    require => User['letsencrypt'],
+    require => File['/var/lib/letsencrypt/keys/'],
   }
 
   exec { 'wget_intermediate_pem':
